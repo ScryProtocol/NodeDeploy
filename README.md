@@ -8,12 +8,12 @@ Simply clone into this repo
 
 Then create a .env with the following parameters
 
-`PK=PRIVATEKEY
+PK=PRIVATEKEY
 RPC=RPCURLWITHAPIKEY
 OOFAddress=OOFCONTRACTADDRESS
 SHEETID=ID / 1syqS8Gpl7ZS9UC_Wr6giY057XebJu3bZKXhIDsN-DJ0
 SHEETTITLE=Ethereum or Polygon
-SHEETAPI=KEY`
+SHEETAPI=KEY
 
 
 Then cd into the dir and run
