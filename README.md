@@ -4,11 +4,11 @@
 ## Installation
 Simply clone into this repo
 
-`git clone https://github.com/ConjureFi/OOFNode`
+`git clone https://github.com/ScryProtocol/NodeDeploy`
 
 Then create a .env with the following parameters
 
-PK=PRIVATEKEY
+```PK=PRIVATEKEY
 
 RPC=RPCURLWITHAPIKEY
 
@@ -18,18 +18,18 @@ SHEETID=ID / 1syqS8Gpl7ZS9UC_Wr6giY057XebJu3bZKXhIDsN-DJ0
 
 SHEETTITLE=Ethereum or Polygon
 
-SHEETAPI=KEY
+SHEETAPI=KEY```
 
 
 Then cd into the dir and run
 
-`node OOFNode.js`
+`node scrynode.js`
 
 The node will automatically start submitting feeds every hour from the provided private key to the provided OOF address.
 
 ## Feeds Setup
 Feeds can be created and setup based on the linked spreadhsheet by simply running
-setupFeeds
+setup.js
 which will then check and if needed create the feeds in the Oracle Feeds struct
 
 Sample Spreadsheet template to fork
