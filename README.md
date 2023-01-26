@@ -20,9 +20,11 @@ SHEETTITLE=Ethereum or Polygon
 
 SHEETAPI=KEY
 
+Feeds can be created and setup based on the linked spreadhsheet by simply running
+setup.js
+which will then check and if needed create the feeds in the Oracle Feeds struct
 
 Then cd into the dir and run
-
 `node scrynode.js`
 
 The node will automatically start submitting feeds every hour from the provided private key to the provided OOF address.
