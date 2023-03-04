@@ -84,7 +84,7 @@ async function processFeeds(endpoint, endpointp, parsingargs, feedId, c) {
     let nonce = await walletWithProvider.getTransactionCount();
     let gasPrice = await provider.getGasPrice()
     let tx_obk = {
-        nonce: nonce,
+
         gasPrice: gasPrice
     }
     async function wait(ms) {
@@ -108,7 +108,7 @@ async function processFeeds(endpoint, endpointp, parsingargs, feedId, c) {
             tx = await oofContract.submitFeed(feedIdArray, feedValueArray, tx_obk)
             console.log("submitted feed ids: " + feedIdArray + "with values: " + feedValueArray + " at " + Date.now())
             console.log("Transaction hash: " + tx.hash)
-
+            tx.wait()
             // check if still pending after 5 minutes
             while (true) {
                 await wait(5 * 60 * 1000);
