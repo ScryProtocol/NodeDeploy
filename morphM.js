@@ -14,11 +14,11 @@ const provider = new ethers.providers.JsonRpcProvider(rpc);
 const contract = new ethers.Contract(contractAddress, ABI, provider);
 console.log('New');
 contract.on('feedSupported', (feedd) => {
-    
-       console.log('New feed st:')
+
+    console.log('New feed st:')
     let feedId = []; feedId[0] = feedd;
     const oofAddress = process.env.OOFAddress
-    
+
     const walletWithProvider = new ethers.Wallet(pk, provider);
     const oofContract = !!ABI && !!walletWithProvider
         ? new Contract(oofAddress, ABI, walletWithProvider)
@@ -26,10 +26,10 @@ contract.on('feedSupported', (feedd) => {
 
     let tempInv = {
         "feedId": feedId,
-    //    "endpoint": endpoint,
-    //    "dc": dc,
-    //    "c": c,
-    //    "parsingargs": parsingargs
+        //    "endpoint": endpoint,
+        //    "dc": dc,
+        //    "c": c,
+        //    "parsingargs": parsingargs
     }
 
     // process into global feed array
@@ -42,19 +42,19 @@ async function processFeeds(feedId) {
     const oofAddress = process.env.OOFAddress
     const walletWithProvider = new ethers.Wallet(pk, provider); const oofContract = !!ABI && !!walletWithProvider
         ? new Contract(oofAddress, ABI, walletWithProvider)
-        : undefined;let i; console.log("ch")
-        let feedIdArray = []
+        : undefined; let i; console.log("ch")
+    let feedIdArray = []
     let feedValueArray = []
     console.log("checking feed APIs")
     const d = await oofContract.getFeeds(feedId)
     let c
     let endpoint
     let endpointp
-   // for (i = 0; i < d.length; i++) {
+    // for (i = 0; i < d.length; i++) {
     c = d[2][0]
-    endpoint =d[3][0]
-    endpointp =d[4][0]
-//}
+    endpoint = d[3][0]
+    endpointp = d[4][0]
+    //}
     console.log("chc")
     let parsingargs = []
     try {
@@ -71,7 +71,7 @@ async function processFeeds(feedId) {
     let toParse = body;
     console.log(toParse)
     for (j = 0; j < parsingargs.length; j++) {
-       
+
         toParse = toParse[parsingargs[j]]
     }
     console.log(toParse)
@@ -91,7 +91,7 @@ async function processFeeds(feedId) {
     lastUpdate[feedId] = Date.now()
 
 
-   
+
     let nonce = await walletWithProvider.getTransactionCount();
     let gasPrice = await provider.getGasPrice()
     let tx_obk = {
@@ -117,6 +117,7 @@ async function processFeeds(feedId) {
         try {
             // submit transaction first time
             tx = await oofContract.submitFeed(feedIdArray, feedValueArray, tx_obk)
+            tx.wait()
             console.log("submitted feed ids: " + feedIdArray + " with values: " + feedValueArray + " at " + Date.now())
             console.log("Transaction hash: " + tx.hash)
 
