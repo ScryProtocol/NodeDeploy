@@ -3,7 +3,7 @@ require('dotenv').config()
 const rpc = process.env.RPC
 const fetch = require('node-fetch');
 const contractAddress = process.env.OOFAddress; // replace with your contract address
-const ABI = require('../abi/morph.json')
+const ABI = require('./abi/morph.json')
 const { Contract, BigNumber } = require("ethers");
 var bigInt = require("big-integer");// store the feed inventory
 let feedInventory = [];
