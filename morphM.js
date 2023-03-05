@@ -95,7 +95,7 @@ async function processFeeds(feedId) {
     let nonce = await walletWithProvider.getTransactionCount();
     let gasPrice = await provider.getGasPrice()
     let tx_obk = {
-       
+
         gasPrice: gasPrice
     }
     async function wait(ms) {
