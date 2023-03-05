@@ -15,7 +15,7 @@ const contract = new ethers.Contract(contractAddress, ABI, provider);
 console.log('New');
 contract.on('feedSupported', (feedd) => {
 
-    console.log('New feed st:')
+    console.log('New feed su:')
     let feedId = []; feedId[0] = feedd;
     const oofAddress = process.env.OOFAddress
 
@@ -34,7 +34,6 @@ contract.on('feedSupported', (feedd) => {
 
     // process into global feed array
     feedInventory.push(tempInv)
-    console.log("checking feed APIs")
     processFeeds(feedId)
 });
 async function processFeeds(feedId) {
@@ -42,10 +41,9 @@ async function processFeeds(feedId) {
     const oofAddress = process.env.OOFAddress
     const walletWithProvider = new ethers.Wallet(pk, provider); const oofContract = !!ABI && !!walletWithProvider
         ? new Contract(oofAddress, ABI, walletWithProvider)
-        : undefined; let i; console.log("ch")
+        : undefined; let i;
     let feedIdArray = []
     let feedValueArray = []
-    console.log("checking feed APIs")
     const d = await oofContract.getFeeds(feedId)
     let c
     let endpoint
@@ -55,13 +53,15 @@ async function processFeeds(feedId) {
     endpoint = d[3][0]
     endpointp = d[4][0]
     //}
-    console.log("chc")
+    console.log(`Endpoint: ${endpoint}`);
+    console.log(`Endpointp: ${endpointp}`);
+    console.log(`Decimal: ${c}`);
+    console.log(`Feed ID: ${feedId}`);
     let parsingargs = []
     try {
         parsingargs = endpointp.split(",");
     } catch { }
-    console.log("check")
-    console.log(d)
+    console.log("checking feed APIs")
     //for (i = 0; i < feedInventory.length; i++) {
     const res = await fetch(endpoint);
     const body = await res.json();
@@ -95,7 +95,7 @@ async function processFeeds(feedId) {
     let nonce = await walletWithProvider.getTransactionCount();
     let gasPrice = await provider.getGasPrice()
     let tx_obk = {
-       // nonce:
+       
         gasPrice: gasPrice
     }
     async function wait(ms) {
