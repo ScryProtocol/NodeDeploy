@@ -15,7 +15,7 @@ const contract = new ethers.Contract(contractAddress, ABI, provider);
 console.log('New');
 contract.on('feedSupported', (feedd) => {
 
-    console.log('New feed su:')
+    console.log('New feed Support:')
     let feedId = []; feedId[0] = feedd;
     const oofAddress = process.env.OOFAddress
 
