@@ -90,7 +90,7 @@ async function processFeeds(endpoint, endpointp, parsingargs, feedId, c) {
   // console.log('Gas fee:', ethers.utils.formatEther(gasF.toString()), 'ETH ', ethers.utils.formatUnits(gasPrice, "gwei") + " gwei");
   // console.log('Bounty ', ethers.utils.formatEther(await oofContract.feedSupport(feedId)).toString())
 
-  //const gF = (await oofContract.feedSupport(feedId) - gasF).toString()
+  const gF = (await oofContract.feedSupport(feedId) - gasF).toString()
   //  console.log('ETH Profit', ethers.utils.formatEther(gF))
   if (ethers.utils.formatEther(gF) > 0) {
     submit(feedId, toParse, 0)
