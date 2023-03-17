@@ -2,6 +2,7 @@ const ethers = require('ethers');
 require('dotenv').config()
 const rpc = process.env.RPC
 const fetch = require('node-fetch');
+const keccak256 = require('keccak256')
 const contractAddress = process.env.OOFAddress; // replace with your contract address
 const ABI = require('./abi/morph.json')
 const { Contract, BigNumber } = require("ethers");
@@ -15,30 +16,63 @@ const contract = new ethers.Contract(contractAddress, ABI, provider);
 console.log('New'); const walletWithProvider = new ethers.Wallet(pk, provider); const oofContract = !!ABI && !!walletWithProvider
   ? new Contract(contractAddress, ABI, walletWithProvider)
   : undefined; let i;
+async function vrfHash(value, feedID, fl) {
+  let hash = ethers.utils.keccak256(pk.toString);
+  console.log('seed ', hash);
+  let hash2
+  if (fl == 1) {
+    feedID -= 1;
+  }
+  for (let i = 0; i < 100000 - feedID; i++) {
+    hash = ethers.utils.keccak256(hash);
+  }
+  hash2 = keccak256(hash + value + feedID).toString('hex')
+  console.log('VRF seed ', hash);
+  let hashBN = ethers.BigNumber.from(hash);
+  let uint256 = hashBN
+  hash = uint256.toString();
+  console.log('seed uint ', hash);
+  hashBN = ethers.BigNumber.from('0x' + hash2);
+  uint256 = hashBN
+  hash2 = uint256.toString()
+  console.log('val ', hash2);
+  if (fl == 1) {
+    submit(feedID + 1, hash);
+  } else {
+    submit(feedID, hash2);
+  }
+}
 contract.on('feedRequested', (endpoint, endpointp, dc, c, feedId,) => {
   console.log('New feed requested:');
   console.log(`Endpoint: ${endpoint}`);
   console.log(`Endpointp: ${endpointp}`);
   console.log(`Decimal: ${c}`);
   console.log(`Feed ID: ${feedId}`);
+  if (endpoint == 'vrf' || endpoint == 'VRF') {
+    if (endpointp == 'proof') {
+      vrfHash(endpointp, feedId, 1)// code to execute if endpoint is 'vrf' or 'VRF'
+    } else {
+      vrfHash(endpointp, feedId, 0)// code to execute if endpoint is 'vrf' or 'VRF'
+    }
+  } else {
+    let parsingargs = []
 
-  let parsingargs = []
+    try {
+      parsingargs = endpointp.split(",");
+    } catch { }
 
-  try {
-    parsingargs = endpointp.split(",");
-  } catch { }
+    let tempInv = {
+      "feedId": feedId,
+      "endpoint": endpoint,
+      "dc": dc,
+      "c": c,
+      "parsingargs": parsingargs
+    }
 
-  let tempInv = {
-    "feedId": feedId,
-    "endpoint": endpoint,
-    "dc": dc,
-    "c": c,
-    "parsingargs": parsingargs
+    // process into global feed array
+    feedInventory.push(tempInv)
+    processFeeds(endpoint, endpointp, parsingargs, feedId, c)
   }
-
-  // process into global feed array
-  feedInventory.push(tempInv)
-  processFeeds(endpoint, endpointp, parsingargs, feedId, c)
 });
 async function processFeeds(endpoint, endpointp, parsingargs, feedId, c) {
   let i; let feedIdArray = []
@@ -141,60 +175,68 @@ async function processFds(feedId) {
   console.log(`Endpointp: ${endpointp}`);
   console.log(`Decimal: ${c}`);
   console.log(`Feed ID: ${feedId}`);
-  let parsingargs = []
-  try {
-    parsingargs = endpointp.split(",");
-  } catch { }
-  console.log("checking feed APIs")
-  //for (i = 0; i < feedInventory.length; i++) {
-  const res = await fetch(endpoint);
-  const body = await res.json();
+  if (endpoint === 'vrf' || endpoint === 'VRF') {
+    if (endpointp == 'proof') {
+      vrfHash(endpointp, feedId, 1)// code to execute if endpoint is 'vrf' or 'VRF'
+    } else {
+      vrfHash(endpointp, feedId, 0)// code to execute if endpoint is 'vrf' or 'VRF'
+    }
+  } else {
+    let parsingargs = []
+    try {
+      parsingargs = endpointp.split(",");
+    } catch { }
+    console.log("checking feed APIs")
+    //for (i = 0; i < feedInventory.length; i++) {
+    const res = await fetch(endpoint);
+    const body = await res.json();
 
-  console.log(body)
-  let j;
-  let toParse = body;
-  console.log(toParse)
-  for (j = 0; j < parsingargs.length; j++) {
+    console.log(body)
+    let j;
+    let toParse = body;
+    console.log(toParse)
+    for (j = 0; j < parsingargs.length; j++) {
 
-    toParse = toParse[parsingargs[j]]
-  }
-  console.log(toParse)
-  if (toParse != "") {
-    toParse = parseFloat(toParse) * (10 ** c)
-    console.log(Math.round(toParse).toLocaleString('fullwide', { useGrouping: false }))
-    toParse = Math.round(toParse).toLocaleString('fullwide', { useGrouping: false })
-  }
-  console.log("Submitting " + toParse)
+      toParse = toParse[parsingargs[j]]
+    }
+    console.log(toParse)
+    if (toParse != "") {
+      toParse = parseFloat(toParse) * (10 ** c)
+      console.log(Math.round(toParse).toLocaleString('fullwide', { useGrouping: false }))
+      toParse = Math.round(toParse).toLocaleString('fullwide', { useGrouping: false })
+    }
+    console.log("Submitting " + toParse)
 
-  // push values
-  feedId = Number(feedId)
-  feedIdArray.push(feedId)
-  feedValueArray.push(toParse)
+    // push values
+    feedId = Number(feedId)
+    feedIdArray.push(feedId)
+    feedValueArray.push(toParse)
 
-  // set new update timestamp
-  lastUpdate[feedId] = Date.now()
+    // set new update timestamp
+    lastUpdate[feedId] = Date.now()
 
-  let gasPrice = await provider.getGasPrice()
-  let tx_obk = {
+    let gasPrice = await provider.getGasPrice()
+    let tx_obk = {
 
-    gasPrice: gasPrice
-  }
-  const gasL = await oofContract.estimateGas.submitFeed(feedIdArray, feedValueArray, tx_obk);
+      gasPrice: gasPrice
+    }
+    const gasL = await oofContract.estimateGas.submitFeed(feedIdArray, feedValueArray, tx_obk);
 
-  const gasF = gasL * gasPrice;
+    const gasF = gasL * gasPrice;
 
-  // console.log('Gas fee:', ethers.utils.formatEther(gasF.toString()), 'ETH ', ethers.utils.formatUnits(gasPrice, "gwei") + " gwei");
-  //console.log('Bounty ', ethers.utils.formatEther(await oofContract.feedSupport(feedId)).toString())
-  //console.log('ETH Profit', ethers.utils.formatEther(ethProfit.toString()));
+    // console.log('Gas fee:', ethers.utils.formatEther(gasF.toString()), 'ETH ', ethers.utils.formatUnits(gasPrice, "gwei") + " gwei");
+    //console.log('Bounty ', ethers.utils.formatEther(await oofContract.feedSupport(feedId)).toString())
+    //console.log('ETH Profit', ethers.utils.formatEther(ethProfit.toString()));
 
-  const gF = (await oofContract.feedSupport(feedId) - gasF).toString()
-  // console.log('ETH Profit ', gF);
+    const gF = (await oofContract.feedSupport(feedId) - gasF).toString()
+    // console.log('ETH Profit ', gF);
 
-  if (ethers.utils.formatEther(gF) > 0) {
-    submit(feedId, toParse, 0)
-  }
-  else {
-    console.log('not profitable')
+    if (ethers.utils.formatEther(gF) > 0) {
+      submit(feedId, toParse, 0)
+    }
+    else {
+      console.log('not profitable')
+    }
   }
 }
 let txa = []
@@ -217,7 +259,7 @@ async function submit(feedId, value, fl) {
     console.log('Gas fee:', ethers.utils.formatEther(gasFee.toString()), 'ETH ', ethers.utils.formatUnits(gasPrice, "gwei") + " gwei");
     console.log('Bounty ', ethers.utils.formatEther(sup))
     console.log('ETH Profit', ethers.utils.formatEther(ethProfit.toString()));
-    
+
 
     if (ethProfit > 0) {
       console.log(
