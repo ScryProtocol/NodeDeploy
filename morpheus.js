@@ -17,7 +17,7 @@ console.log('New'); const walletWithProvider = new ethers.Wallet(pk, provider); 
   ? new Contract(contractAddress, ABI, walletWithProvider)
   : undefined; let i;
 async function vrfHash(value, feedID, fl) {
-  let hash = keccak256(pk.toString + contractAddress).toString('hex');
+  let hash = keccak256(pk.toString + contractAddress).toString('hex');//ethers.utils.keccak256(pk.toString);
   console.log('seed ', hash);
   let hash2
   if (fl == 1) {
